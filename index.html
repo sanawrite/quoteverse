@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quoteverse - Powered by TheSanaWrites</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 0;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #fff, #f8f9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: #fff;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .powered-by {
+            font-size: 1rem;
+            color: #f0f4ff;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            placeholder-color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .quote-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(31, 38, 135, 0.5);
+        }
+
+        .quote-card:hover::before {
+            opacity: 1;
+        }
+
+        .quote-text {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            font-weight: 300;
+            position: relative;
+        }
+
+        .quote-text::before {
+            content: '"';
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.3);
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            font-family: serif;
+        }
+
+        .quote-author {
+            text-align: right;
+            color: #f0f4ff;
+            font-style: italic;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .add-quote-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .add-quote-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(238, 90, 36, 0.6);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            backdrop-filter: blur(20px);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .close {
+            color: #fff;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #ff6b6b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(68, 160, 141, 0.4);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            margin-top: 60px;
+        }
+
+        .instagram-link {
+            display: inline-flex;
+            align-items: center;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .instagram-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .instagram-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .no-quotes {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin: 60px 0;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .quotes-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .quote-card {
+                padding: 20px;
+            }
+            
+            .add-quote-btn {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="logo">Quoteverse</h1>
+            <p class="tagline">Inspiration for Every Journey</p>
+            <p class="powered-by">Powered by TheSanaWrites</p>
+        </header>
+
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search for inspiration..." id="searchInput">
+        </div>
+
+        <div class="quotes-grid" id="quotesGrid">
+            <!-- Sample quotes will be populated by JavaScript -->
+        </div>
+
+        <div id="noQuotes" class="no-quotes" style="display: none;">
+            <p>No quotes found. Be the first to add some inspiration!</p>
+        </div>
+    </div>
+
+    <button class="add-quote-btn" id="addQuoteBtn" title="Add New Quote">+</button>
+
+    <!-- Modal for adding quotes -->
+    <div id="quoteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2 style="color: #fff; margin-bottom: 20px;">Add New Quote</h2>
+            <form id="quoteForm">
+                <div class="form-group">
+                    <label for="quoteText">Quote</label>
+                    <textarea id="quoteText" placeholder="Enter your inspiring quote here..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="quoteAuthor">Author</label>
+                    <input type="text" id="quoteAuthor" placeholder="TheSanaWrites" value="TheSanaWrites">
+                </div>
+                <div class="form-group">
+                    <label for="quoteCategory">Category</label>
+                    <select id="quoteCategory">
+                        <option value="Motivation">Motivation</option>
+                        <option value="Life">Life</option>
+                        <option value="Success">Success</option>
+                        <option value="Dreams">Dreams</option>
+                        <option value="Inspiration">Inspiration</option>
+                        <option value="Wisdom">Wisdom</option>
+                        <option value="Love">Love</option>
+                        <option value="Growth">Growth</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Add Quote</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <a href="https://www.instagram.com/thesanawrites?igsh=cnlidHh1NWxqZXA2" target="_blank" class="instagram-link">
+            <svg class="instagram-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            Follow @thesanawrites
+        </a>
+    </footer>
+
+    <script>
+        // Sample quotes data - you can modify these
+        let quotes = [
+            {
+                text: "The only way to do great work is to love what you do. Every step you take towards your passion is a step towards your purpose.",
+                author: "TheSanaWrites",
+                category: "Motivation"
+            },
+            {
+                text: "Success is not about reaching the destination; it's about who you become during the journey.",
+                author: "TheSanaWrites",
+                category: "Success"
+            },
+            {
+                text: "Your dreams are not too big; your fears are too small. Expand your courage, not your comfort zone.",
+                author: "TheSanaWrites",
+                category: "Dreams"
+            },
+            {
+                text: "Life doesn't get easier; you just get stronger. Every challenge is a chance to grow.",
+                author: "TheSanaWrites",
+                category: "Life"
+            },
+            {
+                text: "Believe in yourself even when nobody else does. Your self-belief is the foundation of all achievements.",
+                author: "TheSanaWrites",
+                category: "Inspiration"
+            },
+            {
+                text: "The greatest wisdom comes from understanding that every ending is a new beginning.",
+                author: "TheSanaWrites",
+                category: "Wisdom"
+            }
+        ];
+
+        // DOM elements
+        const quotesGrid = document.getElementById('quotesGrid');
+        const searchInput = document.getElementById('searchInput');
+        const addQuoteBtn = document.getElementById('addQuoteBtn');
+        const modal = document.getElementById('quoteModal');
+        const closeModal = document.getElementById('closeModal');
+        const quoteForm = document.getElementById('quoteForm');
+        const noQuotes = document.getElementById('noQuotes');
+
+        // Load quotes from localStorage
+        function loadQuotes() {
+            const savedQuotes = localStorage.getItem('quoteverse-quotes');
+            if (savedQuotes) {
+                quotes = JSON.parse(savedQuotes);
+            }
+        }
+
+        // Save quotes to localStorage
+        function saveQuotes() {
+            localStorage.setItem('quoteverse-quotes', JSON.stringify(quotes));
+        }
+
+        // Display quotes
+        function displayQuotes(quotesToShow = quotes) {
+            quotesGrid.innerHTML = '';
+            
+            if (quotesToShow.length === 0) {
+                noQuotes.style.display = 'block';
+                return;
+            } else {
+                noQuotes.style.display = 'none';
+            }
+
+            quotesToShow.forEach((quote, index) => {
+                const quoteCard = document.createElement('div');
+                quoteCard.className = 'quote-card fade-in';
+                quoteCard.innerHTML = `
+                    <div class="category-tag">${quote.category}</div>
+                    <div class="quote-text">${quote.text}</div>
+                    <div class="quote-author">— ${quote.author}</div>
+                `;
+                quotesGrid.appendChild(quoteCard);
+            });
+        }
+
+        // Search functionality
+        function searchQuotes() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredQuotes = quotes.filter(quote => 
+                quote.text.toLowerCase().includes(searchTerm) ||
+                quote.author.toLowerCase().includes(searchTerm) ||
+                quote.category.toLowerCase().includes(searchTerm)
+            );
+            displayQuotes(filteredQuotes);
+        }
+
+        // Add new quote
+        function addQuote(event) {
+            event.preventDefault();
+            
+            const newQuote = {
+                text: document.getElementById('quoteText').value,
+                author: document.getElementById('quoteAuthor').value,
+                category: document.getElementById('quoteCategory').value
+            };
+
+            quotes.unshift(newQuote); // Add to beginning
+            saveQuotes();
+            displayQuotes();
+            
+            // Reset form and close modal
+            quoteForm.reset();
+            document.getElementById('quoteAuthor').value = 'TheSanaWrites';
+            modal.style.display = 'none';
+            
+            // Show success feedback
+            showNotification('Quote added successfully!');
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #4ecdc4, #44a08d);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 3000;
+                font-weight: 500;
+                box-shadow: 0 8px 25px rgba(68, 160, 141, 0.4);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', searchQuotes);
+        addQuoteBtn.addEventListener('click', () => modal.style.display = 'block');
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
+        quoteForm.addEventListener('submit', addQuote);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadQuotes();
+            displayQuotes();
+        });
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.querySelector('.cursor');
+            if (!cursor) {
+                const newCursor = document.createElement('div');
+                newCursor.className = 'cursor';
+                newCursor.style.cssText = `
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.5);
+                    border-radius: 50%;
+                    position: fixed;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transition: all 0.1s ease;
+                `;
+                document.body.appendChild(newCursor);
+            }
+            
+            const cursor2 = document.querySelector('.cursor');
+            cursor2.style.left = e.clientX - 10 + 'px';
+            cursor2.style.top = e.clientY - 10 + 'px';
+        });
+    </script>
+</body>
+</html>
