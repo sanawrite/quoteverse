@@ -72,6 +72,7 @@
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             color: #fff;
+            placeholder-color: rgba(255, 255, 255, 0.7);
             transition: all 0.3s ease;
         }
 
@@ -126,10 +127,6 @@
             opacity: 1;
         }
 
-        .quote-card:hover .quote-actions {
-            opacity: 1;
-        }
-
         .quote-text {
             font-size: 1.3rem;
             color: #fff;
@@ -166,30 +163,6 @@
             font-size: 0.9rem;
             margin-bottom: 15px;
             backdrop-filter: blur(10px);
-        }
-
-        .quote-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 15px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .delete-btn {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .delete-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(238, 90, 36, 0.4);
         }
 
         .add-quote-btn {
@@ -284,43 +257,6 @@
             resize: vertical;
         }
 
-        .add-category-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .add-category-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            color: #fff;
-            font-size: 0.9rem;
-        }
-
-        .add-category-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .add-category-btn {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .add-category-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(68, 160, 141, 0.4);
-        }
-
         .submit-btn {
             background: linear-gradient(45deg, #4ecdc4, #44a08d);
             color: white;
@@ -377,25 +313,6 @@
             margin: 60px 0;
         }
 
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            z-index: 3000;
-            font-weight: 500;
-            box-shadow: 0 8px 25px rgba(68, 160, 141, 0.4);
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
         @media (max-width: 768px) {
             .logo {
                 font-size: 2.5rem;
@@ -439,10 +356,10 @@
         </div>
 
         <div class="quotes-grid" id="quotesGrid">
-            <!-- Quotes will be populated by JavaScript -->
+            <!-- Sample quotes will be populated by JavaScript -->
         </div>
 
-        <div id="noQuotes" class="no-quotes" style="display: block;">
+        <div id="noQuotes" class="no-quotes" style="display: none;">
             <p>No quotes found. Be the first to add some inspiration!</p>
         </div>
     </div>
@@ -466,12 +383,15 @@
                 <div class="form-group">
                     <label for="quoteCategory">Category</label>
                     <select id="quoteCategory">
-                        <!-- Categories will be populated -->
+                        <option value="Motivation">Motivation</option>
+                        <option value="Life">Life</option>
+                        <option value="Success">Success</option>
+                        <option value="Dreams">Dreams</option>
+                        <option value="Inspiration">Inspiration</option>
+                        <option value="Wisdom">Wisdom</option>
+                        <option value="Love">Love</option>
+                        <option value="Growth">Growth</option>
                     </select>
-                    <div class="add-category-container">
-                        <input type="text" id="newCategoryInput" class="add-category-input" placeholder="Or add new category...">
-                        <button type="button" id="addCategoryBtn" class="add-category-btn">Add</button>
-                    </div>
                 </div>
                 <button type="submit" class="submit-btn">Add Quote</button>
             </form>
@@ -488,82 +408,73 @@
     </footer>
 
     <script>
-        // Global variables
-        let quotes = [];
-        let categories = ["Motivation", "Life", "Success", "Dreams", "Inspiration", "Wisdom", "Love", "Growth"];
-
-        // Get DOM elements
-        function getElements() {
-            return {
-                quotesGrid: document.getElementById('quotesGrid'),
-                searchInput: document.getElementById('searchInput'),
-                addQuoteBtn: document.getElementById('addQuoteBtn'),
-                modal: document.getElementById('quoteModal'),
-                closeModal: document.getElementById('closeModal'),
-                quoteForm: document.getElementById('quoteForm'),
-                noQuotes: document.getElementById('noQuotes'),
-                quoteText: document.getElementById('quoteText'),
-                quoteAuthor: document.getElementById('quoteAuthor'),
-                quoteCategory: document.getElementById('quoteCategory'),
-                newCategoryInput: document.getElementById('newCategoryInput'),
-                addCategoryBtn: document.getElementById('addCategoryBtn')
-            };
-        }
-
-        // Show notification
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
-
-        // Populate categories dropdown
-        function populateCategories() {
-            const elements = getElements();
-            const categorySelect = elements.quoteCategory;
-            
-            if (categorySelect) {
-                categorySelect.innerHTML = '';
-                categories.forEach(category => {
-                    const option = document.createElement('option');
-                    option.value = category;
-                    option.textContent = category;
-                    categorySelect.appendChild(option);
-                });
+        // Sample quotes data - you can modify these
+        let quotes = [
+            {
+                text: "The only way to do great work is to love what you do. Every step you take towards your passion is a step towards your purpose.",
+                author: "TheSanaWrites",
+                category: "Motivation"
+            },
+            {
+                text: "Success is not about reaching the destination; it's about who you become during the journey.",
+                author: "TheSanaWrites",
+                category: "Success"
+            },
+            {
+                text: "Your dreams are not too big; your fears are too small. Expand your courage, not your comfort zone.",
+                author: "TheSanaWrites",
+                category: "Dreams"
+            },
+            {
+                text: "Life doesn't get easier; you just get stronger. Every challenge is a chance to grow.",
+                author: "TheSanaWrites",
+                category: "Life"
+            },
+            {
+                text: "Believe in yourself even when nobody else does. Your self-belief is the foundation of all achievements.",
+                author: "TheSanaWrites",
+                category: "Inspiration"
+            },
+            {
+                text: "The greatest wisdom comes from understanding that every ending is a new beginning.",
+                author: "TheSanaWrites",
+                category: "Wisdom"
             }
+        ];
+
+        // DOM elements
+        const quotesGrid = document.getElementById('quotesGrid');
+        const searchInput = document.getElementById('searchInput');
+        const addQuoteBtn = document.getElementById('addQuoteBtn');
+        const modal = document.getElementById('quoteModal');
+        const closeModal = document.getElementById('closeModal');
+        const quoteForm = document.getElementById('quoteForm');
+        const noQuotes = document.getElementById('noQuotes');
+
+        // Load quotes from localStorage
+        function loadQuotes() {
+            const savedQuotes = localStorage.getItem('quoteverse-quotes');
+            if (savedQuotes) {
+                quotes = JSON.parse(savedQuotes);
+            }
+        }
+
+        // Save quotes to localStorage
+        function saveQuotes() {
+            localStorage.setItem('quoteverse-quotes', JSON.stringify(quotes));
         }
 
         // Display quotes
         function displayQuotes(quotesToShow = quotes) {
-            const elements = getElements();
-            const quotesGrid = elements.quotesGrid;
-            const noQuotes = elements.noQuotes;
-            
-            if (!quotesGrid || !noQuotes) return;
-            
             quotesGrid.innerHTML = '';
             
             if (quotesToShow.length === 0) {
                 noQuotes.style.display = 'block';
-                quotesGrid.style.display = 'none';
                 return;
+            } else {
+                noQuotes.style.display = 'none';
             }
-            
-            noQuotes.style.display = 'none';
-            quotesGrid.style.display = 'grid';
-            
+
             quotesToShow.forEach((quote, index) => {
                 const quoteCard = document.createElement('div');
                 quoteCard.className = 'quote-card fade-in';
@@ -571,205 +482,110 @@
                     <div class="category-tag">${quote.category}</div>
                     <div class="quote-text">${quote.text}</div>
                     <div class="quote-author">— ${quote.author}</div>
-                    <div class="quote-actions">
-                        <button class="delete-btn" data-index="${index}">Delete</button>
-                    </div>
                 `;
                 quotesGrid.appendChild(quoteCard);
             });
-            
-            // Add delete event listeners
-            quotesGrid.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.dataset.index);
-                    deleteQuote(index, quotesToShow);
-                });
-            });
         }
 
-        // Delete quote
-        function deleteQuote(index, currentQuotes = quotes) {
-            if (confirm('Are you sure you want to delete this quote?')) {
-                if (currentQuotes === quotes) {
-                    // Deleting from main quotes array
-                    quotes.splice(index, 1);
-                } else {
-                    // Deleting from filtered results - find in main array
-                    const quoteToDelete = currentQuotes[index];
-                    const mainIndex = quotes.findIndex(q => 
-                        q.text === quoteToDelete.text && 
-                        q.author === quoteToDelete.author && 
-                        q.category === quoteToDelete.category
-                    );
-                    if (mainIndex !== -1) {
-                        quotes.splice(mainIndex, 1);
-                    }
-                }
-                
-                // Refresh display
-                const elements = getElements();
-                if (elements.searchInput.value.trim()) {
-                    searchQuotes();
-                } else {
-                    displayQuotes();
-                }
-                
-                showNotification('Quote deleted successfully!');
-            }
-        }
-
-        // Search quotes
+        // Search functionality
         function searchQuotes() {
-            const elements = getElements();
-            const searchTerm = elements.searchInput.value.toLowerCase().trim();
-            
-            if (searchTerm === '') {
-                displayQuotes();
-                return;
-            }
-            
+            const searchTerm = searchInput.value.toLowerCase();
             const filteredQuotes = quotes.filter(quote => 
                 quote.text.toLowerCase().includes(searchTerm) ||
                 quote.author.toLowerCase().includes(searchTerm) ||
                 quote.category.toLowerCase().includes(searchTerm)
             );
-            
             displayQuotes(filteredQuotes);
-        }
-
-        // Add new category
-        function addNewCategory() {
-            const elements = getElements();
-            const newCategory = elements.newCategoryInput.value.trim();
-            
-            if (newCategory && !categories.includes(newCategory)) {
-                categories.push(newCategory);
-                populateCategories();
-                elements.newCategoryInput.value = '';
-                elements.quoteCategory.value = newCategory;
-                showNotification(`Category "${newCategory}" added!`);
-            } else if (categories.includes(newCategory)) {
-                showNotification('Category already exists!');
-            }
         }
 
         // Add new quote
         function addQuote(event) {
             event.preventDefault();
             
-            const elements = getElements();
-            const quoteText = elements.quoteText.value.trim();
-            const quoteAuthor = elements.quoteAuthor.value.trim() || 'TheSanaWrites';
-            const quoteCategory = elements.quoteCategory.value;
-            
-            if (!quoteText) {
-                alert('Please enter a quote!');
-                return;
-            }
-            
-            if (!quoteCategory) {
-                alert('Please select a category!');
-                return;
-            }
-            
             const newQuote = {
-                text: quoteText,
-                author: quoteAuthor,
-                category: quoteCategory
+                text: document.getElementById('quoteText').value,
+                author: document.getElementById('quoteAuthor').value,
+                category: document.getElementById('quoteCategory').value
             };
-            
-            quotes.unshift(newQuote);
+
+            quotes.unshift(newQuote); // Add to beginning
+            saveQuotes();
             displayQuotes();
             
             // Reset form and close modal
-            elements.quoteText.value = '';
-            elements.quoteAuthor.value = 'TheSanaWrites';
-            elements.quoteCategory.selectedIndex = 0;
-            elements.modal.style.display = 'none';
+            quoteForm.reset();
+            document.getElementById('quoteAuthor').value = 'TheSanaWrites';
+            modal.style.display = 'none';
             
+            // Show success feedback
             showNotification('Quote added successfully!');
         }
 
-        // Initialize the app
-        function init() {
-            console.log('Initializing Quoteverse...');
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #4ecdc4, #44a08d);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                z-index: 3000;
+                font-weight: 500;
+                box-shadow: 0 8px 25px rgba(68, 160, 141, 0.4);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
             
-            const elements = getElements();
-            
-            // Populate categories
-            populateCategories();
-            
-            // Display initial state
-            displayQuotes();
-            
-            // Event listeners
-            if (elements.searchInput) {
-                elements.searchInput.addEventListener('input', searchQuotes);
-                console.log('Search listener added');
-            }
-            
-            if (elements.addQuoteBtn) {
-                elements.addQuoteBtn.addEventListener('click', () => {
-                    console.log('Add quote button clicked');
-                    elements.modal.style.display = 'block';
-                });
-                console.log('Add quote button listener added');
-            }
-            
-            if (elements.closeModal) {
-                elements.closeModal.addEventListener('click', () => {
-                    console.log('Close modal clicked');
-                    elements.modal.style.display = 'none';
-                });
-                console.log('Close modal listener added');
-            }
-            
-            if (elements.quoteForm) {
-                elements.quoteForm.addEventListener('submit', addQuote);
-                console.log('Form submit listener added');
-                
-                // Also add click listener to submit button as backup
-                const submitBtn = elements.quoteForm.querySelector('.submit-btn');
-                if (submitBtn) {
-                    submitBtn.addEventListener('click', (e) => {
-                        console.log('Submit button clicked');
-                        e.preventDefault();
-                        addQuote(e);
-                    });
-                    console.log('Submit button listener added');
-                }
-            }
-            
-            if (elements.addCategoryBtn) {
-                elements.addCategoryBtn.addEventListener('click', addNewCategory);
-                console.log('Add category button listener added');
-            }
-            
-            if (elements.newCategoryInput) {
-                elements.newCategoryInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        addNewCategory();
-                    }
-                });
-                console.log('New category input listener added');
-            }
-            
-            // Close modal when clicking outside
-            window.addEventListener('click', (event) => {
-                if (event.target === elements.modal) {
-                    elements.modal.style.display = 'none';
-                }
-            });
-            
-            console.log('Quoteverse initialized successfully!');
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
 
-        // Start when page loads
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        // Event listeners
+        searchInput.addEventListener('input', searchQuotes);
+        addQuoteBtn.addEventListener('click', () => modal.style.display = 'block');
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
+        quoteForm.addEventListener('submit', addQuote);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadQuotes();
+            displayQuotes();
+        });
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.querySelector('.cursor');
+            if (!cursor) {
+                const newCursor = document.createElement('div');
+                newCursor.className = 'cursor';
+                newCursor.style.cssText = `
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.5);
+                    border-radius: 50%;
+                    position: fixed;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transition: all 0.1s ease;
+                `;
+                document.body.appendChild(newCursor);
+            }
+            
+            const cursor2 = document.querySelector('.cursor');
+            cursor2.style.left = e.clientX - 10 + 'px';
+            cursor2.style.top = e.clientY - 10 + 'px';
+        });
     </script>
 </body>
 </html>
